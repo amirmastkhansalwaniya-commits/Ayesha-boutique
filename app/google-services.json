@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "639887651286",
+    "project_id": "my-family-app-4a728",
+    "storage_bucket": "my-family-app-4a728.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639887651286:android:03de602fd71850e502b477",
+        "android_client_info": {
+          "package_name": "com.ayesha.boutique"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo4LOqeT1SaI875ZJ06xBmSOkjUkMduv4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
