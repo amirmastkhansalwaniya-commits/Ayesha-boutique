@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Golden Boutique Shears / Monogram Crest in 66dp safe zone (21 to 87) -->
+    
+    <!-- Outer Golden Emblem Ring -->
+    <path
+        android:pathData="M54,23 C71.12,23 85,36.88 85,54 C85,71.12 71.12,85 54,85 C36.88,85 23,71.12 23,54 C23,36.88 36.88,23 54,23 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#D4AF37"
+        android:fillColor="#00000000" />
+
+    <!-- Inner Golden Crest Ring -->
+    <path
+        android:pathData="M54,26 C69.46,26 82,38.54 82,54 C82,69.46 69.46,82 54,82 C38.54,82 26,69.46 26,54 C26,38.54 38.54,26 54,26 Z"
+        android:strokeWidth="0.8"
+        android:strokeColor="#80FFDF73"
+        android:fillColor="#00000000" />
+
+    <!-- Crown / Tiara Ornament at Top -->
+    <path
+        android:pathData="M46,31 L49,36 L54,30 L59,36 L62,31 L64,38 L44,38 Z"
+        android:fillColor="#FFDF73" />
+
+    <!-- Tailoring Golden Shears (Scissors crossing) -->
+    <!-- Blade 1 & Handle -->
+    <path
+        android:pathData="M38,71 C38,67.5 41,65 44,65 C45.5,65 47,66 48,67.5 L58,49 L62,51 L49.5,72 C48.5,74 46,75 43.5,75 C40.5,75 38,73.5 38,71 Z"
+        android:fillColor="#D4AF37" />
+    <path
+        android:pathData="M41,70 C41,68.5 42.5,67.5 44,67.5 C45.5,67.5 46.5,68.5 46.5,70 C46.5,71.5 45.5,72.5 44,72.5 C42.5,72.5 41,71.5 41,70 Z"
+        android:fillColor="#380810" />
+
+    <!-- Blade 2 & Handle -->
+    <path
+        android:pathData="M70,71 C70,73.5 67.5,75 64.5,75 C62,75 59.5,74 58.5,72 L46,51 L50,49 L60,67.5 C61,66 62.5,65 64,65 C67,65 70,67.5 70,71 Z"
+        android:fillColor="#F3E5AB" />
+    <path
+        android:pathData="M64,72.5 C62.5,72.5 61.5,71.5 61.5,70 C61.5,68.5 62.5,67.5 64,67.5 C65.5,67.5 67,68.5 67,70 C67,71.5 65.5,72.5 64,72.5 Z"
+        android:fillColor="#380810" />
+
+    <!-- Center Pivot Gem -->
+    <path
+        android:pathData="M54,54 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0"
+        android:fillColor="#FFF4D0" />
+
+    <!-- Elegant 'A' Monogram above pivot -->
+    <path
+        android:pathData="M54,39 L47,56 L51,56 L52.5,52 L55.5,52 L57,56 L61,56 Z M53.2,50 L54,44 L54.8,50 Z"
+        android:fillColor="#FFDF73" />
+
+    <!-- Little golden stars / sparkles -->
+    <path
+        android:pathData="M33,44 L34,41 L37,40 L34,39 L33,36 L32,39 L29,40 L32,41 Z"
+        android:fillColor="#FFDF73" />
+    <path
+        android:pathData="M75,44 L76,41 L79,40 L76,39 L75,36 L74,39 L71,40 L74,41 Z"
+        android:fillColor="#FFDF73" />
+</vector>

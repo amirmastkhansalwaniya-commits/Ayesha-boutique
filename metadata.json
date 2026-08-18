@@ -1,0 +1,6 @@
+{
+  "name": "Aysha Boutique",
+  "description": "Luxury boutique operations, custom tailoring measurements, customer management, and order accounting system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
