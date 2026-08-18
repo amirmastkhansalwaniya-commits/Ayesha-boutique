@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aysha Boutique - Bespoke Tailoring & Atelier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --maroon-darkest: #160408;
+            --maroon-dark: #22070D;
+            --maroon-surface: #2E0B13;
+            --maroon-card: #3A0F1A;
+            --maroon-accent: #521524;
+            --gold-primary: #D4AF37;
+            --gold-bright: #F5D77F;
+            --gold-border: #997B24;
+            --champagne-silk: #F8F1E5;
+            --champagne-muted: #C4B6A6;
+            --emerald-paid: #10B981;
+            --amber-pending: #F59E0B;
+            --crimson-urgent: #EF4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--maroon-darkest); color: var(--champagne-silk); display: flex; justify-content: center; min-height: 100vh; }
+        #app { width: 100%; max-width: 540px; min-height: 100vh; background: var(--maroon-darkest); border-left: 1px solid rgba(212,175,55,0.2); border-right: 1px solid rgba(212,175,55,0.2); display: flex; flex-direction: column; position: relative; }
+        header { background: linear-gradient(180deg, var(--maroon-darkest) 0%, var(--maroon-surface) 100%); padding: 14px 16px; border-bottom: 1px solid rgba(212,175,55,0.25); position: sticky; top: 0; z-index: 10; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .logo-circle { width: 44px; height: 44px; border-radius: 50%; background: #3A0F1A; border: 1.5px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 22px; overflow: hidden; }
+        .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .brand-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: var(--gold-bright); letter-spacing: 1px; }
+        .brand-tag { font-size: 11px; color: var(--champagne-muted); }
+        .main-view { flex: 1; padding: 14px; padding-bottom: 85px; overflow-y: auto; }
+        .card { background: var(--maroon-card); border: 1px solid rgba(212,175,55,0.25); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+        .hero { background: linear-gradient(180deg, rgba(82,21,36,0.6) 0%, var(--maroon-card) 100%); border: 1.2px solid var(--gold-border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+        .btn { padding: 10px 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-gold { background: var(--gold-primary); color: #160408; }
+        .btn-outline { background: #2E0B13; border: 1px solid var(--gold-border); color: var(--gold-bright); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .order-card { background: var(--maroon-card); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .order-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: bold; background: #160408; border: 1px solid var(--gold-primary); color: var(--gold-bright); font-family: 'JetBrains Mono', monospace; }
+        .creator-box { background: #2E0B13; border: 1.5px solid var(--gold-primary); border-radius: 12px; padding: 14px; text-align: center; margin-top: 16px; }
+        nav { position: fixed; bottom: 0; width: 100%; max-width: 540px; background: #22070D; border-top: 1px solid rgba(212,175,55,0.3); display: flex; justify-content: space-around; padding: 8px 0; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; color: var(--champagne-muted); background: none; border: none; font-size: 10px; cursor: pointer; padding: 6px 12px; border-radius: 8px; }
+        .nav-btn.active { color: var(--gold-bright); font-weight: bold; background: rgba(212,175,55,0.15); }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div class="top-row">
+            <div class="brand">
+                <div class="logo-circle" id="logo-emblem">✂️</div>
+                <div>
+                    <div class="brand-title" id="app-title">AYSHA BOUTIQUE</div>
+                    <div class="brand-tag">Haute Couture & Bespoke Tailoring</div>
+                </div>
+            </div>
+            <button class="btn btn-outline" style="padding: 6px 10px;" onclick="setTab('settings')">⚙️</button>
+        </div>
+    </header>
+
+    <div class="main-view" id="content-view"></div>
+
+    <nav>
+        <button class="nav-btn active" onclick="setTab('dash')" id="btn-dash">📊<br>Atelier</button>
+        <button class="nav-btn" onclick="setTab('orders')" id="btn-orders">👗<br>Orders</button>
+        <button class="nav-btn" onclick="setTab('clients')" id="btn-clients">👥<br>Clients</button>
+        <button class="nav-btn" onclick="setTab('finances')" id="btn-finances">💰<br>Finances</button>
+        <button class="nav-btn" onclick="setTab('settings')" id="btn-settings">⚙️<br>Settings</button>
+    </nav>
+</div>
+
+<script>
+    const data = {
+        name: "AYSHA BOUTIQUE",
+        currency: "₹",
+        orders: [
+            { id: 1, no: "AY-1001", client: "Fatima Sheikh", phone: "+91 98765 43210", suit: "Bridal Lehanga & Choli", total: 18500, paid: 12000, due: "2026-08-20", status: "Stitching" },
+            { id: 2, no: "AY-1002", client: "Zainab Qureshi", phone: "+91 91234 56789", suit: "Embroidered Anarkali Suit", total: 9500, paid: 9500, due: "2026-08-24", status: "Fitting" }
+        ],
+        clients: [
+            { name: "Fatima Sheikh", phone: "+91 98765 43210", chest: "36", waist: "30", hips: "38" },
+            { name: "Zainab Qureshi", phone: "+91 91234 56789", chest: "38", waist: "32", hips: "40" }
+        ]
+    };
+
+    let activeTab = 'dash';
+
+    function setTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('btn-' + tab);
+        if(btn) btn.classList.add('active');
+        render();
+    }
+
+    function render() {
+        const view = document.getElementById('content-view');
+        let totalRev = 0, totalPaid = 0;
+        data.orders.forEach(o => { totalRev += o.total; totalPaid += o.paid; });
+        const pending = totalRev - totalPaid;
+
+        if (activeTab === 'dash') {
+            view.innerHTML = `
+                <div class="hero">
+                    <span style="font-size:10px; font-weight:bold; color:var(--gold-bright); letter-spacing:1px;">DAILY OPERATIONS</span>
+                    <h2 style="font-family:'Playfair Display',serif; font-size:20px; color:var(--champagne-silk); margin:2px 0;">${data.name} Atelier</h2>
+                    <p style="font-size:12px; color:var(--champagne-muted);">Bespoke Tailoring & Order Ledger</p>
+                    <div class="grid-2" style="margin-top:12px;">
+                        <button class="btn btn-gold" onclick="addNewOrder()">+ New Order</button>
+                        <button class="btn btn-outline" onclick="addNewClient()">+ New Client</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="font-size:11px; font-weight:bold; color:var(--gold-bright); margin-bottom:8px;">FINANCIAL SUMMARY</div>
+                    <div class="grid-3" style="text-align:center;">
+                        <div style="background:#160408; padding:8px; border-radius:8px;">
+                            <span style="font-size:10px; color:var(--champagne-muted)">Billed</span>
+                            <div style="font-size:14px; font-weight:bold;">${data.currency}${totalRev}</div>
+                        </div>
+                        <div style="background:#160408; padding:8px; border-radius:8px;">
+                            <span style="font-size:10px; color:var(--champagne-muted)">Received</span>
+                            <div style="font-size:14px; font-weight:bold; color:var(--emerald-paid);">${data.currency}${totalPaid}</div>
+                        </div>
+                        <div style="background:#160408; padding:8px; border-radius:8px;">
+                            <span style="font-size:10px; color:var(--champagne-muted)">Pending</span>
+                            <div style="font-size:14px; font-weight:bold; color:var(--amber-pending);">${data.currency}${pending}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size:12px; font-weight:bold; color:var(--gold-bright); margin-bottom:8px;">RECENT ORDERS</div>
+                ${data.orders.map(o => `
+                    <div class="order-card">
+                        <div class="order-head">
+                            <span class="badge">${o.no}</span>
+                            <span style="font-size:11px; color:var(--gold-bright); background:#2E0B13; padding:2px 6px; border-radius:4px;">${o.status}</span>
+                        </div>
+                        <div style="font-weight:bold; font-size:14px; color:var(--champagne-silk);">${o.suit}</div>
+                        <div style="font-size:11px; color:var(--champagne-muted); margin:3px 0;">👤 ${o.client} • 📞 ${o.phone}</div>
+                        <div style="display:flex; justify-content:space-between; background:#160408; padding:6px 8px; border-radius:6px; font-size:11px; margin-top:6px;">
+                            <span>Total: <b>${data.currency}${o.total}</b></span>
+                            <span>Paid: <b style="color:var(--emerald-paid)">${data.currency}${o.paid}</b></span>
+                            <span>Due: <b style="color:var(--amber-pending)">${data.currency}${o.total - o.paid}</b></span>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <div class="creator-box">
+                    <h3 style="font-size:14px; color:var(--gold-bright); font-family:'Playfair Display',serif;">This app created by Amir Khan</h3>
+                    <p style="font-size:11px; color:var(--champagne-muted); margin-top:2px;">Bespoke Atelier Suite • Complete Offline Edition</p>
+                </div>
+            `;
+        } else if (activeTab === 'orders') {
+            view.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:14px; font-weight:bold; color:var(--gold-bright)">ALL TAILORING ORDERS</span>
+                    <button class="btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="addNewOrder()">+ Add</button>
+                </div>
+                ${data.orders.map(o => `
+                    <div class="order-card">
+                        <div class="order-head"><span class="badge">${o.no}</span><span>Due: ${o.due}</span></div>
+                        <div style="font-weight:bold; font-size:14px;">${o.suit}</div>
+                        <div style="font-size:12px; color:var(--champagne-muted);">Client: ${o.client} (${o.phone})</div>
+                    </div>
+                `).join('')}
+            `;
+        } else if (activeTab === 'clients') {
+            view.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:14px; font-weight:bold; color:var(--gold-bright)">CLIENT MEASUREMENTS</span>
+                    <button class="btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="addNewClient()">+ Add</button>
+                </div>
+                ${data.clients.map(c => `
+                    <div class="card">
+                        <div style="font-weight:bold; font-size:14px;">${c.name}</div>
+                        <div style="font-size:11px; color:var(--champagne-muted);">📞 ${c.phone}</div>
+                        <div style="background:#160408; padding:6px; border-radius:6px; font-size:11px; color:var(--gold-bright); margin-top:6px;">
+                            Chest: ${c.chest}″ | Waist: ${c.waist}″ | Hips: ${c.hips}″
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        } else if (activeTab === 'finances') {
+            view.innerHTML = `
+                <div class="card">
+                    <h3 style="font-size:14px; color:var(--gold-bright); margin-bottom:10px;">LEDGER & COLLECTIONS</h3>
+                    <div style="background:#160408; padding:12px; border-radius:8px; font-size:13px; line-height:1.8;">
+                        <div>Total Revenue: <b>${data.currency}${totalRev}</b></div>
+                        <div style="color:var(--emerald-paid)">Collected Advance: <b>${data.currency}${totalPaid}</b></div>
+                        <div style="color:var(--amber-pending)">Balance Pending: <b>${data.currency}${pending}</b></div>
+                    </div>
+                </div>
+            `;
+        } else if (activeTab === 'settings') {
+            view.innerHTML = `
+                <div class="card">
+                    <h3 style="font-size:14px; color:var(--gold-bright); margin-bottom:12px;">BOUTIQUE SETTINGS</h3>
+                    <label style="font-size:11px; color:var(--champagne-muted);">Boutique Name</label>
+                    <input type="text" id="setName" value="${data.name}" style="width:100%; background:#160408; border:1px solid #997B24; border-radius:8px; padding:8px; color:#fff; margin-bottom:10px;">
+                    
+                    <label style="font-size:11px; color:var(--champagne-muted);">Upload Logo / Photo</label>
+                    <input type="file" accept="image/*" onchange="uploadLogo(event)" style="width:100%; background:#160408; border:1px solid #997B24; border-radius:8px; padding:6px; color:#fff; margin-bottom:12px;">
+
+                    <button class="btn btn-gold" style="width:100%;" onclick="saveSettings()">Save Changes</button>
+                </div>
+                <div class="creator-box">
+                    <h3 style="font-size:14px; color:var(--gold-bright);">This app created by Amir Khan</h3>
+                </div>
+            `;
+        }
+    }
+
+    function addNewOrder() {
+        const client = prompt("Customer Name:");
+        if (!client) return;
+        const suit = prompt("Suit / Garment:", "Embroidered Suit");
+        const total = Number(prompt("Total Amount (₹):", "3500")) || 0;
+        const paid = Number(prompt("Advance Paid (₹):", "1500")) || 0;
+        data.orders.unshift({
+            id: Date.now(),
+            no: "AY-" + Math.floor(1000 + Math.random()*9000),
+            client: client,
+            phone: "+91 98765 00000",
+            suit: suit,
+            total: total,
+            paid: paid,
+            due: new Date(Date.now() + 86400000*3).toISOString().split('T')[0],
+            status: "Cutting"
+        });
+        render();
+    }
+
+    function addNewClient() {
+        const name = prompt("Client Name:");
+        if (!name) return;
+        const phone = prompt("Phone Number:", "+91 ");
+        data.clients.unshift({ name, phone, chest: "36", waist: "30", hips: "38" });
+        render();
+    }
+
+    function uploadLogo(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                document.getElementById('logo-emblem').innerHTML = `<img src="${evt.target.result}">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function saveSettings() {
+        data.name = document.getElementById('setName').value;
+        document.getElementById('app-title').innerText = data.name.toUpperCase();
+        alert("Settings saved!");
+        setTab('dash');
+    }
+
+    render();
+</script>
+</body>
+</html>
