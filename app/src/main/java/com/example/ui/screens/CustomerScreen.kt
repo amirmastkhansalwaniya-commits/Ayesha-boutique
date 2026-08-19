@@ -24,11 +24,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
+import com.example.data.model.CustomAppSettings
+import com.example.util.PdfReportGenerator
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,9 +40,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
@@ -47,20 +55,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Customer
+import com.example.ui.dialogs.WhatsAppShareDialog
 import com.example.ui.theme.ChampagneMuted
 import com.example.ui.theme.ChampagneSilk
 import com.example.ui.theme.ChampagneText
-import com.example.ui.theme.CrimsonUrgent
 import com.example.ui.theme.GoldBorder
 import com.example.ui.theme.GoldBright
-import com.example.ui.theme.GoldDark
 import com.example.ui.theme.GoldLight
 import com.example.ui.theme.GoldMuted
 import com.example.ui.theme.GoldPrimary
-import com.example.ui.theme.MaroonAccent
 import com.example.ui.theme.MaroonCard
 import com.example.ui.theme.MaroonDarkest
 import com.example.ui.theme.MaroonSurface
+
+private val WhatsAppGreen = Color(0xFF25D366)
 
 @Composable
 fun CustomerScreen(
@@ -68,8 +76,11 @@ fun CustomerScreen(
     onAddCustomer: () -> Unit,
     onEditCustomer: (Customer) -> Unit,
     onDeleteCustomer: (Customer) -> Unit,
-    onCallCustomer: (String) -> Unit
+    onCallCustomer: (String) -> Unit,
+    onGetCustomerShareText: ((Customer) -> String)? = null
 ) {
+    var customerToShare by remember { mutableStateOf<Customer?>(null) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,7 +107,7 @@ fun CustomerScreen(
                     letterSpacing = 1.2.sp
                 )
                 Text(
-                    text = "With Saved Measurements",
+                    text = "With Saved Measurements & WhatsApp",
                     color = ChampagneMuted,
                     fontSize = 11.sp
                 )
@@ -146,7 +157,8 @@ fun CustomerScreen(
                             customer = customer,
                             onEdit = { onEditCustomer(customer) },
                             onDelete = { onDeleteCustomer(customer) },
-                            onCall = { onCallCustomer(customer.phone) }
+                            onCall = { onCallCustomer(customer.phone) },
+                            onShareWhatsApp = { customerToShare = customer }
                         )
                     }
                 }
@@ -167,6 +179,44 @@ fun CustomerScreen(
             Icon(Icons.Default.Add, contentDescription = "Add Client", modifier = Modifier.size(24.dp))
         }
     }
+
+    // WhatsApp Share Dialog for Client
+    customerToShare?.let { customer ->
+        val unit = customer.defaultMeasurementUnit ?: "in"
+        val shareText = onGetCustomerShareText?.invoke(customer) ?: """
+            ⚜️ *AYSHA BOUTIQUE • CLIENT DETAILS* ⚜️
+            ━━━━━━━━━━━━━━━━━━━
+            👤 *Name:* ${customer.name}
+            📞 *Contact:* ${customer.phone}
+            ${if (customer.address.isNotBlank()) "📍 *Address:* ${customer.address}\n" else ""}
+            📏 *SAVED BODY MEASUREMENTS ($unit)*
+            • Chest: ${customer.defaultChest ?: "—"}
+            • Waist: ${customer.defaultWaist ?: "—"}
+            • Hips: ${customer.defaultHips ?: "—"}
+            • Shoulder: ${customer.defaultShoulder ?: "—"}
+            • Sleeve: ${customer.defaultSleeve ?: "—"}
+            • Trouser Length: ${customer.defaultTrouserLength ?: "—"}
+            
+            ${if (customer.notes.isNotBlank()) "📝 *Notes:* ${customer.notes}\n" else ""}━━━━━━━━━━━━━━━━━━━
+            _This app created by Amir Khan_
+        """.trimIndent()
+
+        val context = LocalContext.current
+        val dummySettings = CustomAppSettings()
+        val pdfFile = remember(customer) {
+            PdfReportGenerator.generateCustomerPdf(context, customer, dummySettings)
+        }
+
+        WhatsAppShareDialog(
+            title = "Share Client Details",
+            subtitle = "Send measurements to client or another number",
+            clientName = customer.name,
+            clientPhone = customer.phone,
+            shareText = shareText,
+            pdfFile = pdfFile,
+            onDismiss = { customerToShare = null }
+        )
+    }
 }
 
 @Composable
@@ -174,7 +224,8 @@ fun CustomerCard(
     customer: Customer,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onCall: () -> Unit
+    onCall: () -> Unit,
+    onShareWhatsApp: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -238,7 +289,42 @@ fun CustomerCard(
                     }
                 }
 
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val context = LocalContext.current
+
+                    // Direct PDF View / Open
+                    IconButton(
+                        onClick = {
+                            val dummySettings = CustomAppSettings()
+                            val pdfFile = PdfReportGenerator.generateCustomerPdf(context, customer, dummySettings)
+                            if (pdfFile != null) {
+                                PdfReportGenerator.openPdfDirectly(context, pdfFile)
+                            }
+                        },
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(MaroonSurface)
+                    ) {
+                        Icon(Icons.Default.Description, contentDescription = "Client PDF", tint = GoldLight, modifier = Modifier.size(16.dp))
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    // WhatsApp Share Icon
+                    IconButton(
+                        onClick = onShareWhatsApp,
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(WhatsAppGreen)
+                            .testTag("customer_whatsapp_button_${customer.id}")
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = "WhatsApp Share", tint = Color.White, modifier = Modifier.size(16.dp))
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
                     if (customer.phone.isNotBlank()) {
                         IconButton(
                             onClick = onCall,
@@ -316,3 +402,4 @@ fun CustomerCard(
         }
     }
 }
+
