@@ -20,5 +20,16 @@ data class Customer(
     val defaultSleeve: Double? = null,
     val defaultTrouserLength: Double? = null,
     val defaultMeasurementUnit: String = "in",
+    val defaultCustomFieldsJson: String = "",
     val createdAt: Long = System.currentTimeMillis()
-)
+) {
+    fun getCustomList(): List<Pair<String, String>> {
+        if (defaultCustomFieldsJson.isBlank()) return emptyList()
+        return defaultCustomFieldsJson.split(";;").mapNotNull { entry ->
+            val parts = entry.split("::")
+            if (parts.size >= 2 && parts[0].isNotBlank()) {
+                parts[0].trim() to parts[1].trim()
+            } else null
+        }
+    }
+}

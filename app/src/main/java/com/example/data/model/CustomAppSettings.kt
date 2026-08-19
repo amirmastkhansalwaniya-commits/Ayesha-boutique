@@ -16,7 +16,7 @@ enum class AppThemePreset(
 ) {
     MAROON_GOLD(
         id = "maroon_gold",
-        title = "Royal Maroon & Gold",
+        title = "Royal Maroon & Gold (शाही मरून)",
         description = "Deep burgundy velvet with 24k gold accents",
         primaryColor = Color(0xFFD4AF37),
         darkBackground = Color(0xFF190306),
@@ -27,7 +27,7 @@ enum class AppThemePreset(
     ),
     EMERALD_GOLD(
         id = "emerald_gold",
-        title = "Imperial Emerald & Gold",
+        title = "Imperial Emerald & Gold (शाही पन्ना)",
         description = "Deep forest emerald with gleaming gold",
         primaryColor = Color(0xFFE5C158),
         darkBackground = Color(0xFF03140C),
@@ -38,7 +38,7 @@ enum class AppThemePreset(
     ),
     SAPPHIRE_CHAMPAGNE(
         id = "sapphire_champagne",
-        title = "Royal Sapphire & Champagne",
+        title = "Royal Sapphire & Champagne (शाही नीलम)",
         description = "Midnight oceanic blue with champagne sheen",
         primaryColor = Color(0xFFDFB86C),
         darkBackground = Color(0xFF030B18),
@@ -49,7 +49,7 @@ enum class AppThemePreset(
     ),
     OBSIDIAN_ROSE(
         id = "obsidian_rose",
-        title = "Obsidian & Rose Gold",
+        title = "Obsidian & Rose Gold (चारकोल रोज)",
         description = "Pure midnight black with luminous rose gold",
         primaryColor = Color(0xFFE8A598),
         darkBackground = Color(0xFF0D0D11),
@@ -60,7 +60,7 @@ enum class AppThemePreset(
     ),
     PLUM_GOLD(
         id = "plum_gold",
-        title = "Velvet Plum & Pale Gold",
+        title = "Velvet Plum & Pale Gold (शाही जामुनी)",
         description = "Aristocratic deep purple with warm honey gold",
         primaryColor = Color(0xFFECC272),
         darkBackground = Color(0xFF140416),
@@ -68,6 +68,64 @@ enum class AppThemePreset(
         surfaceColor = Color(0xFF240927),
         accentColor = Color(0xFF55175D),
         textColor = Color(0xFFFBF4FD)
+    )
+}
+
+enum class AppFontSizePreset(
+    val id: String,
+    val title: String,
+    val scaleFactor: Float,
+    val description: String
+) {
+    COMPACT(
+        id = "compact",
+        title = "Compact (छोटा - 85%)",
+        scaleFactor = 0.88f,
+        description = "Smaller compact text for dense screen viewing"
+    ),
+    DEFAULT(
+        id = "default",
+        title = "Standard (सामान्य - 100%)",
+        scaleFactor = 1.0f,
+        description = "Standard balanced typography size"
+    ),
+    COMFORTABLE(
+        id = "comfortable",
+        title = "Comfortable (बड़ा - 115%)",
+        scaleFactor = 1.15f,
+        description = "Enhanced clarity and enlarged comfortable reading"
+    ),
+    EXTRA_LARGE(
+        id = "extra_large",
+        title = "Extra Large (विशाल - 130%)",
+        scaleFactor = 1.30f,
+        description = "Maximum size for effortless legibility"
+    )
+}
+
+enum class AppStylePreset(
+    val id: String,
+    val title: String,
+    val description: String,
+    val cornerRadius: Int = 16
+) {
+    ROYAL_LUXE(
+        id = "royal_luxe",
+        title = "Royal Classic Luxe (शाही लक्ज़री)",
+        description = "Gold filigree borders with 18dp luxury curves",
+        cornerRadius = 18
+    ),
+    MODERN_MINIMAL(
+        id = "modern_minimal",
+        title = "Modern Atelier Minimal (मॉडर्न मिनिमल)",
+        description = "Clean geometric borders with high-contrast polish",
+        cornerRadius = 10
+    ),
+    HAUTE_COUTURE(
+        id = "haute_couture",
+        title = "Haute Couture Glass (हाउत कूटूर)",
+        description = "Soft translucent glass curves with ambient glow",
+        cornerRadius = 24
     )
 }
 
@@ -122,7 +180,10 @@ data class CustomAppSettings(
     val currencySymbol: String = "₹",
     val selectedTheme: AppThemePreset = AppThemePreset.MAROON_GOLD,
     val selectedFont: AppFontPreset = AppFontPreset.SERIF,
+    val selectedFontSize: AppFontSizePreset = AppFontSizePreset.DEFAULT,
+    val selectedStyle: AppStylePreset = AppStylePreset.ROYAL_LUXE,
     val selectedLogo: AppLogoPreset = AppLogoPreset.ROYAL_SHEARS,
     val customLogoPath: String? = null,
     val creatorCredit: String = "This app created by Amir Khan"
 )
+
