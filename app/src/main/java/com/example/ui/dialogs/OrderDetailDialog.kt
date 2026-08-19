@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,9 +57,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.BoutiqueOrder
+import com.example.data.model.CustomAppSettings
 import com.example.data.model.OrderStatus
 import com.example.ui.components.MeasurementViewer
 import com.example.ui.components.TailoringStatusStepper
+import com.example.ui.dialogs.WhatsAppShareDialog
+import com.example.util.PdfReportGenerator
 import com.example.ui.theme.AmberPending
 import com.example.ui.theme.ChampagneMuted
 import com.example.ui.theme.ChampagneSilk
@@ -94,15 +98,18 @@ fun OrderDetailDialog(
     val context = LocalContext.current
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     var showRecordPaymentDialog by remember { mutableStateOf(false) }
+    var showWhatsAppShareDialog by remember { mutableStateOf(false) }
 
     fun shareReceipt() {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, receiptText)
-            type = "text/plain"
+        showWhatsAppShareDialog = true
+    }
+
+    fun exportPdfInvoice() {
+        val dummySettings = CustomAppSettings()
+        val pdfFile = PdfReportGenerator.generateSingleOrderInvoicePdf(context, order, dummySettings)
+        if (pdfFile != null) {
+            PdfReportGenerator.openPdfDirectly(context, pdfFile)
         }
-        val shareIntent = Intent.createChooser(sendIntent, "Share Aysha Boutique Receipt")
-        context.startActivity(shareIntent)
     }
 
     fun callCustomer() {
@@ -473,16 +480,28 @@ fun OrderDetailDialog(
 
                     Row {
                         OutlinedButton(
+                            onClick = { exportPdfInvoice() },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = GoldLight),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(brush = Brush.linearGradient(listOf(GoldBorder, GoldDark)))
+                        ) {
+                            Icon(Icons.Default.PictureAsPdf, contentDescription = "PDF", modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("PDF")
+                        }
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        OutlinedButton(
                             onClick = onEditOrder,
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = GoldLight),
                             border = ButtonDefaults.outlinedButtonBorder.copy(brush = Brush.linearGradient(listOf(GoldBorder, GoldDark)))
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Edit Specs")
+                            Text("Edit")
                         }
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
 
                         Button(
                             onClick = { shareReceipt() },
@@ -490,12 +509,28 @@ fun OrderDetailDialog(
                         ) {
                             Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Share Receipt", fontWeight = FontWeight.Bold)
+                            Text("WhatsApp", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
         }
+    }
+
+    if (showWhatsAppShareDialog) {
+        val dummySettings = CustomAppSettings()
+        val pdfFile = remember(order) {
+            PdfReportGenerator.generateSingleOrderInvoicePdf(context, order, dummySettings)
+        }
+        WhatsAppShareDialog(
+            title = "Share Order PDF",
+            subtitle = "Order: ${order.orderNumber} • ${order.suitType}",
+            clientName = order.customerName,
+            clientPhone = order.customerPhone,
+            shareText = receiptText,
+            pdfFile = pdfFile,
+            onDismiss = { showWhatsAppShareDialog = false }
+        )
     }
 
     if (showRecordPaymentDialog) {

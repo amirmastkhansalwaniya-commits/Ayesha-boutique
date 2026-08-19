@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +29,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,6 +58,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -99,6 +106,7 @@ import java.util.Locale
 fun CreateOrderDialog(
     existingOrder: BoutiqueOrder? = null,
     customers: List<Customer>,
+    customMeasurementPresets: List<com.example.data.model.PrecisionMeasurementOption> = emptyList(),
     onDismiss: () -> Unit,
     onSaveCustomer: (name: String, phone: String, address: String, chest: Double?, waist: Double?, hips: Double?, shoulder: Double?, sleeve: Double?, trouserLength: Double?, onComplete: (Long) -> Unit) -> Unit,
     currencySymbol: String = "₹",
@@ -170,6 +178,15 @@ fun CreateOrderDialog(
     var inseamText by remember { mutableStateOf(existingOrder?.customMeasurements?.inseam?.toString() ?: "") }
     var armholeText by remember { mutableStateOf(existingOrder?.customMeasurements?.armhole?.toString() ?: "") }
     var measurementNotes by remember { mutableStateOf(existingOrder?.customMeasurements?.measurementNotes ?: "") }
+
+    // Dynamic Custom Measurements List (Key to Value)
+    val customMeasurementsList = remember {
+        mutableStateListOf<Pair<String, String>>().apply {
+            existingOrder?.customMeasurements?.getCustomList()?.let { addAll(it) }
+        }
+    }
+    var showAddMeasurementOptionDialog by remember { mutableStateOf(false) }
+    var editingCustomOptionIndex by remember { mutableStateOf<Int?>(null) }
 
     // Financial
     var totalAmountText by remember { mutableStateOf(existingOrder?.totalAmount?.let { if (it > 0) it.toString() else "" } ?: "") }
@@ -396,6 +413,14 @@ fun CreateOrderDialog(
                                                     if (c.defaultTrouserLength != null && trouserLengthText.isBlank()) trouserLengthText = c.defaultTrouserLength.toString()
                                                     measurementUnit = c.defaultMeasurementUnit
 
+                                                    // Auto-fill customer custom measurements
+                                                    c.getCustomList().forEach { (k, v) ->
+                                                        val existingIdx = customMeasurementsList.indexOfFirst { it.first.equals(k, ignoreCase = true) }
+                                                        if (existingIdx == -1) {
+                                                            customMeasurementsList.add(k to v)
+                                                        }
+                                                    }
+
                                                     customerDropdownExpanded = false
                                                 }
                                             )
@@ -610,6 +635,15 @@ fun CreateOrderDialog(
 
                             Spacer(modifier = Modifier.height(14.dp))
 
+                            Text(
+                                text = "STANDARD MEASUREMENTS",
+                                color = ChampagneMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+
                             // Measurement Inputs: Chest, Waist, Hips
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -622,7 +656,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (chestText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { chestText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -632,7 +673,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (waistText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { waistText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -642,7 +690,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (hipsText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { hipsText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
                             }
 
@@ -660,7 +715,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (shoulderText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { shoulderText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -670,7 +732,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (sleeveText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { sleeveText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -680,7 +749,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (trouserLengthText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { trouserLengthText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
                             }
 
@@ -698,7 +774,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (neckText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { neckText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -708,7 +791,14 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (inseamText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { inseamText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
 
                                 OutlinedTextField(
@@ -718,11 +808,183 @@ fun CreateOrderDialog(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                     modifier = Modifier.weight(1f),
                                     colors = luxuryTextFieldColors(),
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = RoundedCornerShape(8.dp),
+                                    trailingIcon = if (armholeText.isNotBlank()) {
+                                        {
+                                            IconButton(onClick = { armholeText = "" }, modifier = Modifier.size(20.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+                                    } else null
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // DYNAMIC PRECISION MEASUREMENTS SECTION
+                            val recommendedSpecs = remember(suitType, customMeasurementPresets) {
+                                val baseRecs = com.example.data.model.PrecisionMeasurementCatalog.getGarmentRecommendations(suitType)
+                                val allCatalog = com.example.data.model.PrecisionMeasurementCatalog.defaultOptions + customMeasurementPresets
+                                baseRecs.mapNotNull { recName ->
+                                    allCatalog.find { it.name.equals(recName, ignoreCase = true) }
+                                }
+                            }
+
+                            val unaddedRecommendedSpecs = remember(recommendedSpecs, customMeasurementsList.size) {
+                                val currentAddedNames = customMeasurementsList.map { it.first.lowercase().trim() }
+                                recommendedSpecs.filter { opt ->
+                                    val optNameLower = opt.name.lowercase().trim()
+                                    val optDisplayLower = opt.displayLabel.lowercase().trim()
+                                    currentAddedNames.none { it.contains(optNameLower) || optDisplayLower.contains(it) }
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlaylistAdd,
+                                        contentDescription = null,
+                                        tint = GoldBright,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "PRECISION MEASUREMENTS (${customMeasurementsList.size})",
+                                        color = GoldLight,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 0.8.sp
+                                    )
+                                }
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (customMeasurementsList.isNotEmpty()) {
+                                        Text(
+                                            text = "Clear",
+                                            color = Color(0xFFF87171),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .clickable { customMeasurementsList.clear() }
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            showAddMeasurementOptionDialog = true
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaroonCard,
+                                            contentColor = GoldBright
+                                        ),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, GoldBorder.copy(alpha = 0.4f)),
+                                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                        modifier = Modifier.height(32.dp)
+                                    ) {
+                                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("+ Add Spec (50+)", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+
+                            // Quick Suggestions Strip based on garment type
+                            if (unaddedRecommendedSpecs.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Quick Add Tailoring Specs:",
+                                    color = ChampagneMuted,
+                                    fontSize = 10.5.sp
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(unaddedRecommendedSpecs) { opt ->
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaroonSurfaceVariant)
+                                                .border(0.8.dp, GoldBorder.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    val labelToAdd = if (opt.hindiName.isNotBlank()) "${opt.name} (${opt.hindiName})" else opt.name
+                                                    if (customMeasurementsList.none { it.first.equals(labelToAdd, ignoreCase = true) }) {
+                                                        customMeasurementsList.add(labelToAdd to "")
+                                                    }
+                                                }
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    Icons.Default.Add,
+                                                    contentDescription = null,
+                                                    tint = GoldBright,
+                                                    modifier = Modifier.size(12.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(3.dp))
+                                                Text(
+                                                    text = if (opt.hindiName.isNotBlank()) "${opt.name} (${opt.hindiName})" else opt.name,
+                                                    color = ChampagneText,
+                                                    fontSize = 10.5.sp,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            if (customMeasurementsList.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaroonSurface.copy(alpha = 0.6f))
+                                        .border(0.5.dp, GoldBorder.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                                        .padding(12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "No custom precision specs added yet. Tap quick specs above or '+ Add Spec (50+)' to specify front neck, back neck, flare, thigh, mohri, crotch depth, etc.",
+                                        color = ChampagneMuted.copy(alpha = 0.7f),
+                                        fontSize = 11.sp,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    customMeasurementsList.forEachIndexed { index, pair ->
+                                        PrecisionOptionRow(
+                                            index = index,
+                                            name = pair.first,
+                                            value = pair.second,
+                                            unit = measurementUnit,
+                                            onValueChange = { newVal ->
+                                                customMeasurementsList[index] = pair.first to newVal
+                                            },
+                                            onEditClick = {
+                                                editingCustomOptionIndex = index
+                                            },
+                                            onDeleteClick = {
+                                                customMeasurementsList.removeAt(index)
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(14.dp))
 
                             OutlinedTextField(
                                 value = measurementNotes,
@@ -927,6 +1189,7 @@ fun CreateOrderDialog(
                         Button(
                             onClick = {
                                 if (customerName.isNotBlank()) {
+                                    val customJson = BodyMeasurements.encodeCustomList(customMeasurementsList.toList())
                                     val measurements = BodyMeasurements(
                                         chest = chestText.toDoubleOrNull(),
                                         waist = waistText.toDoubleOrNull(),
@@ -938,7 +1201,8 @@ fun CreateOrderDialog(
                                         inseam = inseamText.toDoubleOrNull(),
                                         armhole = armholeText.toDoubleOrNull(),
                                         unit = measurementUnit,
-                                        measurementNotes = measurementNotes
+                                        measurementNotes = measurementNotes,
+                                        customFieldsJson = customJson
                                     )
 
                                     val count = numberOfSuitsText.toIntOrNull() ?: 1
@@ -1012,6 +1276,42 @@ fun CreateOrderDialog(
                         }
                     }
                 }
+            }
+               // Add Custom Measurement Option Dialog
+        if (showAddMeasurementOptionDialog) {
+            AddPrecisionMeasurementDialog(
+                currentUnit = measurementUnit,
+                onDismiss = { showAddMeasurementOptionDialog = false },
+                extraPresets = customMeasurementPresets,
+                onAddOption = { optName, optVal ->
+                    val existingIdx = customMeasurementsList.indexOfFirst { it.first.equals(optName, ignoreCase = true) }
+                    if (existingIdx != -1) {
+                        customMeasurementsList[existingIdx] = optName to optVal
+                    } else {
+                        customMeasurementsList.add(optName to optVal)
+                    }
+                }
+            )
+        }
+
+        // Edit Custom Measurement Option Dialog
+        editingCustomOptionIndex?.let { idx ->
+            if (idx in customMeasurementsList.indices) {
+                val currentPair = customMeasurementsList[idx]
+                EditPrecisionMeasurementDialog(
+                    currentName = currentPair.first,
+                    currentValue = currentPair.second,
+                    currentUnit = measurementUnit,
+                    onDismiss = { editingCustomOptionIndex = null },
+                    onSave = { updatedName, updatedVal ->
+                        customMeasurementsList[idx] = updatedName to updatedVal
+                        editingCustomOptionIndex = null
+                    },
+                    onDelete = {
+                        customMeasurementsList.removeAt(idx)
+                        editingCustomOptionIndex = null
+                    }
+                )
             }
         }
     }

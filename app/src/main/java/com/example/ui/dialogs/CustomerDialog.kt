@@ -20,9 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,9 +34,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -67,6 +72,7 @@ import com.example.ui.theme.MaroonSurfaceVariant
 @Composable
 fun CustomerDialog(
     customer: Customer? = null,
+    customMeasurementPresets: List<com.example.data.model.PrecisionMeasurementOption> = emptyList(),
     onDismiss: () -> Unit,
     onSave: (
         id: Long,
@@ -81,7 +87,8 @@ fun CustomerDialog(
         shoulder: Double?,
         sleeve: Double?,
         trouserLength: Double?,
-        unit: String
+        unit: String,
+        customFieldsJson: String
     ) -> Unit
 ) {
     var name by remember { mutableStateOf(customer?.name ?: "") }
@@ -97,6 +104,15 @@ fun CustomerDialog(
     var shoulderText by remember { mutableStateOf(customer?.defaultShoulder?.toString() ?: "") }
     var sleeveText by remember { mutableStateOf(customer?.defaultSleeve?.toString() ?: "") }
     var trouserLengthText by remember { mutableStateOf(customer?.defaultTrouserLength?.toString() ?: "") }
+
+    // Dynamic Custom Measurements List
+    val customMeasurementsList = remember {
+        mutableStateListOf<Pair<String, String>>().apply {
+            customer?.getCustomList()?.let { addAll(it) }
+        }
+    }
+    var showAddMeasurementOptionDialog by remember { mutableStateOf(false) }
+    var editingCustomOptionIndex by remember { mutableStateOf<Int?>(null) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -293,7 +309,14 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (chestText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { chestText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                         OutlinedTextField(
                             value = waistText,
@@ -302,7 +325,14 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (waistText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { waistText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                         OutlinedTextField(
                             value = hipsText,
@@ -311,7 +341,14 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (hipsText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { hipsText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                     }
 
@@ -328,7 +365,14 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (shoulderText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { shoulderText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                         OutlinedTextField(
                             value = sleeveText,
@@ -337,7 +381,14 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (sleeveText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { sleeveText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                         OutlinedTextField(
                             value = trouserLengthText,
@@ -346,11 +397,102 @@ fun CustomerDialog(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.weight(1f),
                             colors = luxuryTextFieldColors(),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            trailingIcon = if (trouserLengthText.isNotBlank()) {
+                                {
+                                    IconButton(onClick = { trouserLengthText = "" }, modifier = Modifier.size(20.dp)) {
+                                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = ChampagneMuted, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            } else null
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // DYNAMIC ADDITIONAL MEASUREMENTS
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.PlaylistAdd,
+                                contentDescription = null,
+                                tint = GoldBright,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "ADDITIONAL MEASUREMENTS (${customMeasurementsList.size})",
+                                color = GoldLight,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.8.sp
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                showAddMeasurementOptionDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaroonSurface,
+                                contentColor = GoldBright
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, GoldBorder.copy(alpha = 0.4f)),
+                            modifier = Modifier.height(30.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("+ Add Precision Spec", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    if (customMeasurementsList.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaroonSurface.copy(alpha = 0.6f))
+                                .border(0.5.dp, GoldBorder.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No additional precision specs added. Tap '+ Add Precision Spec' for 50+ options (front neck, flare, thigh, bicep, etc.).",
+                                color = ChampagneMuted.copy(alpha = 0.7f),
+                                fontSize = 11.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            customMeasurementsList.forEachIndexed { index, pair ->
+                                PrecisionOptionRow(
+                                    index = index,
+                                    name = pair.first,
+                                    value = pair.second,
+                                    unit = unit,
+                                    onValueChange = { newVal ->
+                                        customMeasurementsList[index] = pair.first to newVal
+                                    },
+                                    onEditClick = {
+                                        editingCustomOptionIndex = index
+                                    },
+                                    onDeleteClick = {
+                                        customMeasurementsList.removeAt(index)
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = notes,
@@ -383,6 +525,7 @@ fun CustomerDialog(
                     Button(
                         onClick = {
                             if (name.isNotBlank()) {
+                                val customJson = Customer.encodeCustomList(customMeasurementsList.toList())
                                 onSave(
                                     customer?.id ?: 0L,
                                     name,
@@ -396,7 +539,8 @@ fun CustomerDialog(
                                     shoulderText.toDoubleOrNull(),
                                     sleeveText.toDoubleOrNull(),
                                     trouserLengthText.toDoubleOrNull(),
-                                    unit
+                                    unit,
+                                    customJson
                                 )
                             }
                         },
@@ -414,5 +558,56 @@ fun CustomerDialog(
                 }
             }
         }
+
+        // Add Custom Measurement Option Dialog for Customer
+        if (showAddMeasurementOptionDialog) {
+            AddPrecisionMeasurementDialog(
+                currentUnit = unit,
+                onDismiss = { showAddMeasurementOptionDialog = false },
+                extraPresets = customMeasurementPresets,
+                onAddOption = { optName, optVal ->
+                    val existingIdx = customMeasurementsList.indexOfFirst { it.first.equals(optName, ignoreCase = true) }
+                    if (existingIdx != -1) {
+                        customMeasurementsList[existingIdx] = optName to optVal
+                    } else {
+                        customMeasurementsList.add(optName to optVal)
+                    }
+                }
+            )
+        }
+
+        // Edit Custom Measurement Option Dialog
+        editingCustomOptionIndex?.let { idx ->
+            if (idx in customMeasurementsList.indices) {
+                val currentPair = customMeasurementsList[idx]
+                EditPrecisionMeasurementDialog(
+                    currentName = currentPair.first,
+                    currentValue = currentPair.second,
+                    currentUnit = unit,
+                    onDismiss = { editingCustomOptionIndex = null },
+                    onSave = { updatedName, updatedVal ->
+                        customMeasurementsList[idx] = updatedName to updatedVal
+                        editingCustomOptionIndex = null
+                    },
+                    onDelete = {
+                        customMeasurementsList.removeAt(idx)
+                        editingCustomOptionIndex = null
+                    }
+                )
+            }
+        }
     }
 }
+
+@Composable
+private fun luxuryTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = ChampagneText,
+    unfocusedTextColor = ChampagneSilk,
+    focusedBorderColor = GoldBright,
+    unfocusedBorderColor = GoldBorder.copy(alpha = 0.5f),
+    focusedLabelColor = GoldLight,
+    unfocusedLabelColor = ChampagneMuted,
+    cursorColor = GoldBright,
+    focusedContainerColor = MaroonSurface,
+    unfocusedContainerColor = MaroonSurfaceVariant.copy(alpha = 0.5f)
+)
